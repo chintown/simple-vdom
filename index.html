@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>simple vdom</title>
+    <style>
+        pre {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div id="target">
+        node1
+        <span class="node2" hidden>node2</span>
+        <div class="node3">
+            node4
+            <span class="node5">node5</span>
+        </div>
+        <span class="node6">node6</span>
+        node7
+    </div>
+    <script src="vdom.js" type="module"></script>
+    <script type="module">
+        import {
+            generateVdomNode as vnode,
+            patchSync as updateDom
+        } from './vdom.js';
+
+        const vdomPatch =
+            vnode('div', {},
+                vnode('span', { class:'node1' }, 'node1'),
+                vnode('span', { hidden: false }, 'node2'),
+                vnode('div', { // node3
+                    // (node4)
+                    // (node5)
+                }),
+                'node6',
+                'node7-changed',
+                vnode('span', { class: 'node5', hidden: true }, 'node5'),
+            );
+
+        const domTarget = document.querySelector('#target');
+        snapshot(domTarget);
+        updateDom(domTarget, vdomPatch);
+        snapshot(domTarget);
+
+        // debugging
+        function snapshot(dom) {
+            const domCode = document.createElement('code');
+            const domPre = document.createElement('pre');
+            domPre.innerText = dom.outerHTML;
+            domCode.appendChild(domPre);
+            document.body.appendChild(domCode);
+        }
+    </script>
+</body>
+</html>
